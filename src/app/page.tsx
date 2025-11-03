@@ -163,14 +163,13 @@ export default function Home() {
       // Enhanced search parameters for more relevant results
       const searchParams = {
         q: query || (selectedTopic ? selectedTopic : 'news'),
-        apiKey: process.env.NEXT_PUBLIC_NEWS_API_KEY,
         language: 'en',
         sortBy: 'relevancy', // Changed from 'publishedAt' to 'relevancy'
         pageSize: 30, // Limit results to get more relevant ones
         searchIn: 'title,description', // Search in both title and description
       }
 
-      const response = await axios.get(`https://newsapi.org/v2/everything`, {
+      const response = await axios.get(`/api/news`, {
         params: searchParams,
       })
 
