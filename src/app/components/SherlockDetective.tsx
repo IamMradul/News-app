@@ -2,24 +2,19 @@
 
 import { useEffect, useState, useRef } from 'react';
 
-interface SherlockDetectiveProps {
-  onHover: (isHovering: boolean) => void;
-}
-
 interface CardPosition {
   x: number;
   y: number;
   width: number;
   height: number;
 }
-
-const SherlockDetective = ({ onHover }: SherlockDetectiveProps) => {
+const SherlockDetective = () => {
   const [position, setPosition] = useState({ x: 50, y: 0 });
   const [velocity, setVelocity] = useState({ x: 0, y: 0 });
   const [isClimbing, setIsClimbing] = useState(false);
   const [direction, setDirection] = useState(1);
   const [cards, setCards] = useState<CardPosition[]>([]);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
 
   // Constants for physics
@@ -54,9 +49,8 @@ const SherlockDetective = ({ onHover }: SherlockDetectiveProps) => {
 
   useEffect(() => {
     const animate = (currentTime: number) => {
-      if (!lastTimeRef.current) lastTimeRef.current = currentTime;
-      const deltaTime = (currentTime - lastTimeRef.current) / 16; // Normalize to ~60fps
-      lastTimeRef.current = currentTime;
+  if (!lastTimeRef.current) lastTimeRef.current = currentTime;
+  lastTimeRef.current = currentTime;
 
       setPosition(prev => {
         let newX = prev.x + velocity.x;
@@ -135,7 +129,7 @@ const SherlockDetective = ({ onHover }: SherlockDetectiveProps) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [velocity, cards, isClimbing]);
+  }, [velocity, cards, isClimbing, JUMP_FORCE]);
 
   // Handle keyboard controls
   useEffect(() => {

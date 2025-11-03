@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { format } from 'date-fns'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import Image from 'next/image'
-import SherlockDetective from './components/SherlockDetective'
+// removed unused Image import
 import Link from 'next/link'
 
 interface Article {
@@ -84,85 +83,13 @@ export default function Home() {
   const [showEasterEgg, setShowEasterEgg] = useState(false)
   const [easterEggMessage, setEasterEggMessage] = useState('')
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [detectivePosition, setDetectivePosition] = useState({ x: 0, y: 0 })
-  const [isWalking, setIsWalking] = useState(false)
-  const [isClient, setIsClient] = useState(false)
-  const [isHovering, setIsHovering] = useState(false)
+  // removed isClient and isHovering (unused)
   const [searchError, setSearchError] = useState<string | null>(null)
   const [suggestedQuery, setSuggestedQuery] = useState<string | null>(null)
 
-  // Initialize client-side state
-  useEffect(() => {
-    setIsClient(true)
-    setDetectivePosition({
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2
-    })
-  }, [])
+  
 
-  // Add walking animation with smoother movement
-  useEffect(() => {
-    if (!isClient) return
-
-    let animationFrame: number
-    let lastTime = 0
-    const moveSpeed = 0.5 // pixels per millisecond
-    const maxDistance = 5 // maximum distance per frame
-
-    const animate = (currentTime: number) => {
-      if (!lastTime) lastTime = currentTime
-      const deltaTime = currentTime - lastTime
-      lastTime = currentTime
-
-      if (isWalking) {
-        setDetectivePosition(prev => {
-          const targetX = Math.max(100, Math.min(window.innerWidth - 100, prev.x + (Math.random() * 2 - 1) * maxDistance))
-          const targetY = Math.max(100, Math.min(window.innerHeight - 100, prev.y + (Math.random() * 2 - 1) * maxDistance))
-          
-          const dx = targetX - prev.x
-          const dy = targetY - prev.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-          
-          if (distance > maxDistance) {
-            const ratio = maxDistance / distance
-            return {
-              x: prev.x + dx * ratio,
-              y: prev.y + dy * ratio
-            }
-          }
-          
-          return { x: targetX, y: targetY }
-        })
-      }
-
-      animationFrame = requestAnimationFrame(animate)
-    }
-
-    animationFrame = requestAnimationFrame(animate)
-    return () => cancelAnimationFrame(animationFrame)
-  }, [isWalking, isClient])
-
-  // Update mouse position with smoother transitions
-  useEffect(() => {
-    if (!isClient) return
-
-    let rafId: number
-    const handleMouseMove = (e: MouseEvent) => {
-      cancelAnimationFrame(rafId)
-      rafId = requestAnimationFrame(() => {
-        setMousePosition({ x: e.clientX, y: e.clientY })
-        setIsWalking(true)
-        setTimeout(() => setIsWalking(false), 1500) // Longer walking duration
-      })
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      cancelAnimationFrame(rafId)
-    }
-  }, [isClient])
+  
 
   const handleCardHover = (index: number) => {
     setHoveredCard(index)
@@ -221,7 +148,6 @@ export default function Home() {
   }
 
   const defaultTopics = TOPICS.slice(0, 8) // First 8 categories
-  const additionalTopics = TOPICS.slice(8) // Remaining categories
   const displayedTopics = isCategoriesExpanded ? TOPICS : defaultTopics
 
   useEffect(() => {
@@ -391,159 +317,9 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 relative overflow-hidden">
-      <SherlockDetective onHover={setIsHovering} />
+    <main className="min-h-screen bg-transparent relative overflow-hidden">
       
       <div className="container mx-auto px-4 py-8 relative">
-        {/* Background Illustrations */}
-        <div className="fixed inset-0 -z-10 overflow-hidden">
-          <div className="absolute inset-0 bg-gray-900">
-            {/* Newspaper Pattern */}
-            <svg className="absolute top-0 left-0 w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <pattern id="newspaper" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M0 0h20v20H0z" fill="none"/>
-                <path d="M2 2h16v16H2z" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                <path d="M4 4h12v12H4z" fill="none" stroke="currentColor" strokeWidth="0.3"/>
-                <path d="M6 6h8v8H6z" fill="none" stroke="currentColor" strokeWidth="0.2"/>
-              </pattern>
-              <rect x="0" y="0" width="100" height="100" fill="url(#newspaper)"/>
-            </svg>
-
-            {/* News Icons Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              {/* Top Row */}
-              <div className="absolute top-10 left-10">
-                <svg className="w-12 h-12 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                </svg>
-              </div>
-              <div className="absolute top-10 right-10">
-                <svg className="w-12 h-12 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-
-              {/* Middle Row */}
-              <div className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-                <svg className="w-12 h-12 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                </svg>
-              </div>
-              <div className="absolute top-1/2 right-1/4 transform translate-x-1/2 -translate-y-1/2">
-                <svg className="w-12 h-12 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-
-              {/* Bottom Row */}
-              <div className="absolute bottom-10 left-10">
-                <svg className="w-12 h-12 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                </svg>
-              </div>
-              <div className="absolute bottom-10 right-10">
-                <svg className="w-12 h-12 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-            </div>
-
-            {/* Additional Decorative Elements */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2">
-                <div className="w-32 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
-              </div>
-              <div className="absolute bottom-1/4 left-1/2 transform -translate-x-1/2">
-                <div className="w-32 h-1 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full"></div>
-              </div>
-            </div>
-
-            {/* Sherlock Holmes Detective */}
-            {isClient && (
-              <div 
-                className="fixed pointer-events-none transition-all duration-500 ease-out z-50"
-                style={{
-                  left: detectivePosition.x,
-                  top: detectivePosition.y,
-                  transform: `translate(-50%, -50%) scale(${isWalking ? 1.1 : 1})`,
-                  filter: `blur(${isWalking ? '1px' : '0px'})`,
-                }}
-              >
-                <div className="relative">
-                  {/* Detective Silhouette */}
-                  <svg className="w-[500px] h-[500px] transition-transform duration-500 ease-out" viewBox="0 0 100 100">
-                    {/* Hat */}
-                    <path d="M30 15h40v10h-40z" fill="#F5F5F5"/>
-                    <path d="M25 25h50v5h-50z" fill="#F5F5F5"/>
-                    
-                    {/* Head */}
-                    <path d="M40 30c-5 0-10 5-10 10 0 5 5 10 10 10s10-5 10-10c0-5-5-10-10-10z" fill="#F5F5F5"/>
-                    
-                    {/* Body */}
-                    <path d="M35 50h30v40h-30z" fill="#F5F5F5"/>
-                    
-                    {/* Coat */}
-                    <path d="M30 45h40v50h-40z" fill="#F5F5F5"/>
-                    
-                    {/* Arms */}
-                    <path d="M25 50h10v30h-10z" fill="#F5F5F5"/>
-                    <path d="M65 50h10v30h-10z" fill="#F5F5F5"/>
-                    
-                    {/* Pipe */}
-                    <path d="M60 40h15v5h-15z" fill="#F5F5F5"/>
-                    <path d="M75 35h5v15h-5z" fill="#F5F5F5"/>
-                    
-                    {/* Magnifying Glass */}
-                    <circle cx="25" cy="45" r="8" fill="none" stroke="#F5F5F5" strokeWidth="3"/>
-                    <path d="M20 50l5 5" stroke="#F5F5F5" strokeWidth="3"/>
-                  </svg>
-                  
-                  {/* Torch Light */}
-                  <div 
-                    className={`absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-gradient-to-r from-yellow-400/60 to-yellow-600/60 rounded-full blur-3xl transition-all duration-700 ease-out ${
-                      hoveredCard !== null ? 'opacity-100 scale-110' : 'opacity-0 scale-100'
-                    }`}
-                    style={{
-                      transform: 'translate(-50%, -50%)',
-                      filter: 'blur(40px)',
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Add detective-themed decorative elements */}
-            {isClient && (
-              <div className="fixed inset-0 pointer-events-none opacity-30">
-                {/* Footprints */}
-                <div className="absolute bottom-10 left-10 animate-bounce-slow">
-                  <svg className="w-12 h-12 text-gray-400 transition-all duration-500 ease-out" viewBox="0 0 24 24">
-                    <path d="M12 2c-2.5 0-4.5 2-4.5 4.5S9.5 11 12 11s4.5-2 4.5-4.5S14.5 2 12 2z" fill="currentColor"/>
-                    <path d="M12 13c-2.5 0-4.5 2-4.5 4.5S9.5 22 12 22s4.5-2 4.5-4.5S14.5 13 12 13z" fill="currentColor"/>
-                  </svg>
-                </div>
-              </div>
-            )}
-
-            {/* Add custom animations */}
-            <style jsx global>{`
-              @keyframes bounce-slow {
-                0%, 100% {
-                  transform: translateY(0);
-                }
-                50% {
-                  transform: translateY(-10px);
-                }
-              }
-              .animate-bounce-slow {
-                animation: bounce-slow 2s ease-in-out infinite;
-              }
-            `}</style>
-
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900/90 to-gray-900"></div>
-          </div>
-        </div>
 
         <h1 className="text-4xl font-bold text-center mb-8 animate-fade-in bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Latest News

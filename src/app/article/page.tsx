@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { load } from "cheerio";
+import { load, type Cheerio } from "cheerio";
+import type { Element } from "domhandler";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,8 +32,8 @@ async function fetchFullArticleContent(targetUrl: string): Promise<{ text: strin
     // Remove non-content elements
     $("script,noscript,style,header,footer,nav,aside,form,iframe,svg").remove();
 
-    // Pick the most likely content container
-    let $container = $("article").first();
+  // Pick the most likely content container
+  let $container: Cheerio<Element> = $("article").first() as Cheerio<Element>;
     if (!$container.length) {
       const candidates = [
         ".article-content",
@@ -46,12 +47,12 @@ async function fetchFullArticleContent(targetUrl: string): Promise<{ text: strin
       ];
       for (const sel of candidates) {
         if ($(sel).length) {
-          $container = $(sel).first();
+          $container = $(sel).first() as Cheerio<Element>;
           break;
         }
       }
     }
-    if (!$container.length) $container = $("body");
+    if (!$container.length) $container = $("body") as Cheerio<Element>;
 
     const paragraphs = $container
       .find("p")
