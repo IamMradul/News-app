@@ -42,9 +42,13 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message =
+      typeof err === "object" && err !== null && "message" in err
+        ? String((err as { message: string }).message)
+        : String(err);
     return NextResponse.json(
-      { message: "Failed to fetch from NewsAPI", error: err?.message || String(err) },
+      { message: "Failed to fetch from NewsAPI", error: message },
       { status: 502 }
     );
   }
